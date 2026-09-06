@@ -55,3 +55,41 @@ if (
 } else {
   toggle.checked = false;
 }
+
+// Kirim form kontak ke Formspree tanpa reload halaman
+const contactForm = document.querySelector("#contact-form");
+const formStatus = document.querySelector("#form-status");
+
+contactForm.addEventListener("submit", async function (e) {
+  e.preventDefault();
+
+  const submitButton = contactForm.querySelector("button[type='submit']");
+  submitButton.disabled = true;
+  submitButton.textContent = "Mengirim...";
+  formStatus.classList.add("hidden");
+
+  try {
+    const response = await fetch(contactForm.action, {
+      method: "POST",
+      body: new FormData(contactForm),
+      headers: { Accept: "application/json" },
+    });
+
+    if (response.ok) {
+      formStatus.textContent = "Pesan berhasil terkirim, terima kasih!";
+      formStatus.classList.remove("hidden", "text-red-500");
+      formStatus.classList.add("text-primary");
+      contactForm.reset();
+    } else {
+      throw new Error("Gagal mengirim");
+    }
+  } catch (error) {
+    formStatus.textContent =
+      "Maaf, pesan gagal terkirim. Coba lagi atau email langsung ke jovinodiandra230@gmail.com.";
+    formStatus.classList.remove("hidden", "text-primary");
+    formStatus.classList.add("text-red-500");
+  } finally {
+    submitButton.disabled = false;
+    submitButton.textContent = "Kirim";
+  }
+});
